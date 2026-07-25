@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Unlock Fairway Ledger — $1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="One-time $1 unlock for Fairway Ledger, the six-point golf scorer.">
+<meta name="theme-color" content="#2F6844">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#F5F1E6; --surface:#FFFFFF; --ink:#1C2B22; --ink-soft:#5B6A58; --ink-faint:#8B9587;
+    --line:#DCD5C0; --line-strong:#C7BEA2; --green:#2F6844; --green-ink:#F2F8F4;
+    --brass:#A87C2E; --brass-ink:#2A1F0C; --flag:#A3382B;
+    --shadow: 0 1px 2px rgba(28,43,34,.06), 0 8px 24px -12px rgba(28,43,34,.18);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#101C16; --surface:#17251D; --ink:#EAE6D6; --ink-soft:#9CAC98; --ink-faint:#647163;
+      --line:#28382E; --line-strong:#374A3D; --green:#74C293; --green-ink:#0C1E14;
+      --brass:#E0B558; --brass-ink:#241B08; --flag:#E28674;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101C16; --surface:#17251D; --ink:#EAE6D6; --ink-soft:#9CAC98; --ink-faint:#647163;
+    --line:#28382E; --line-strong:#374A3D; --green:#74C293; --green-ink:#0C1E14;
+    --brass:#E0B558; --brass-ink:#241B08; --flag:#E28674;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F1E6; --surface:#FFFFFF; --ink:#1C2B22; --ink-soft:#5B6A58; --ink-faint:#8B9587;
+    --line:#DCD5C0; --line-strong:#C7BEA2; --green:#2F6844; --green-ink:#F2F8F4;
+    --brass:#A87C2E; --brass-ink:#2A1F0C; --flag:#A3382B;
+    --shadow: 0 1px 2px rgba(28,43,34,.06), 0 8px 24px -12px rgba(28,43,34,.18);
+    color-scheme: light;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/22px 22px, var(--bg);
+    color: var(--ink); min-height:100vh; display:flex; align-items:center; justify-content:center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased; padding: 24px;
+  }
+  .card{
+    max-width: 380px; width:100%; background:var(--surface); border-radius:16px; box-shadow:var(--shadow);
+    padding: 32px 26px 26px; text-align:center;
+  }
+  .flag{ font-size: 2rem; line-height:1; margin-bottom: 10px; }
+  .eyebrow{
+    margin:0 0 6px; font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); font-weight:600;
+  }
+  h1{
+    margin:0 0 10px; font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.7rem; font-weight:600; letter-spacing:-.01em; text-wrap:balance; color:var(--ink);
+  }
+  p.sub{ margin: 0 0 22px; font-size:.9rem; line-height:1.5; color:var(--ink-soft); }
+  .price{
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums;
+    font-size: 2.6rem; font-weight:700; color:var(--green); margin: 0 0 4px;
+  }
+  .price-note{ font-size:.72rem; color:var(--ink-faint); margin: 0 0 24px; }
+  .pay-btn{
+    display:block; width:100%; text-decoration:none; background:var(--green); color:var(--green-ink);
+    font-weight:700; font-size:1rem; padding: 14px 18px; border-radius:999px; box-shadow:var(--shadow);
+  }
+  .pay-btn:active{ transform: translateY(1px); }
+  .fine{ margin: 16px 0 0; font-size:.7rem; color:var(--ink-faint); line-height:1.5; }
+  .test-flag{
+    margin: 18px 0 0; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--brass-ink); background:var(--brass); border-radius:6px; padding:4px 8px; display:inline-block;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="flag">⛳</div>
+    <p class="eyebrow">Three players &middot; six points a hole</p>
+    <h1>Fairway Ledger</h1>
+    <p class="sub">Score six-point golf for you and two mates, with real stroke-index presets for every Taranaki club. Pay once, keep it on your phone forever.</p>
+    <p class="price">$1<span style="font-size:1rem;font-weight:600;color:var(--ink-faint);">.00</span></p>
+    <p class="price-note">One-time payment &middot; no subscription</p>
+    <a class="pay-btn" href="https://buy.stripe.com/test_aFa5kCa5C3y67VH4I41Fe00">Unlock Fairway Ledger</a>
+    <p class="fine">Handled securely by Stripe. After payment you're dropped straight into the app — add it to your home screen and it works with no signal from then on.</p>
+    <span class="test-flag" id="testFlag" hidden>Stripe test mode — no real charge</span>
+  </div>
+  <script>
+    // Shows the test-mode notice only when the payment link itself is a Stripe test link,
+    // so nobody sees it once this is swapped to a live link.
+    if(document.querySelector(".pay-btn").href.indexOf("/test_") !== -1){
+      document.getElementById("testFlag").hidden = false;
+    }
+  </script>
+</body>
+</html>
