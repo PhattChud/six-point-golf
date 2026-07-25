@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fairway Ledger — Six-Point Golf</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="3-player six-point golf scorer with stroke-index presets for Taranaki clubs.">
+<meta name="theme-color" content="#2F6844">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Fairway Ledger">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+  :root{
+    --bg:#F5F1E6;
+    --surface:#FFFFFF;
+    --surface-sunk:#EFEADA;
+    --ink:#1C2B22;
+    --ink-soft:#5B6A58;
+    --ink-faint:#8B9587;
+    --line:#DCD5C0;
+    --line-strong:#C7BEA2;
+    --green:#2F6844;
+    --green-ink:#F2F8F4;
+    --brass:#A87C2E;
+    --brass-ink:#2A1F0C;
+    --flag:#A3382B;
+    --flag-ink:#FBEFEC;
+    --shadow: 0 1px 2px rgba(28,43,34,.06), 0 8px 24px -12px rgba(28,43,34,.18);
+    --radius: 14px;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#101C16;
+      --surface:#17251D;
+      --surface-sunk:#0E1712;
+      --ink:#EAE6D6;
+      --ink-soft:#9CAC98;
+      --ink-faint:#647163;
+      --line:#28382E;
+      --line-strong:#374A3D;
+      --green:#74C293;
+      --green-ink:#0C1E14;
+      --brass:#E0B558;
+      --brass-ink:#241B08;
+      --flag:#E28674;
+      --flag-ink:#2B0F0A;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#101C16; --surface:#17251D; --surface-sunk:#0E1712; --ink:#EAE6D6; --ink-soft:#9CAC98;
+    --ink-faint:#647163; --line:#28382E; --line-strong:#374A3D; --green:#74C293; --green-ink:#0C1E14;
+    --brass:#E0B558; --brass-ink:#241B08; --flag:#E28674; --flag-ink:#2B0F0A;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#F5F1E6; --surface:#FFFFFF; --surface-sunk:#EFEADA; --ink:#1C2B22; --ink-soft:#5B6A58;
+    --ink-faint:#8B9587; --line:#DCD5C0; --line-strong:#C7BEA2; --green:#2F6844; --green-ink:#F2F8F4;
+    --brass:#A87C2E; --brass-ink:#2A1F0C; --flag:#A3382B; --flag-ink:#FBEFEC;
+    --shadow: 0 1px 2px rgba(28,43,34,.06), 0 8px 24px -12px rgba(28,43,34,.18);
+    color-scheme: light;
+  }
+
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:
+      radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/22px 22px,
+      var(--bg);
+    background-blend-mode: normal;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding: 0 0 48px;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background: radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/22px 22px, var(--bg); }
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+  input[type="number"]{ -moz-appearance:textfield; }
+
+  .wrap{ max-width: 560px; margin: 0 auto; padding: 20px 14px 0; }
+
+  .masthead{ padding: 10px 4px 18px; }
+  .eyebrow{
+    margin: 0 0 6px;
+    font-size: .72rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  h1{
+    margin: 0;
+    font-family: ui-serif, Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.9rem;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+  .sub{
+    margin: 6px 0 0;
+    font-size: .85rem;
+    color: var(--ink-soft);
+    max-width: 46ch;
+  }
+
+  .controls{
+    display:flex; align-items:center; gap:10px; margin-top:16px; flex-wrap: wrap;
+  }
+  .controls-2{ margin-top: 8px; }
+  .seg{
+    display:inline-flex; border:1px solid var(--line-strong); border-radius: 999px; overflow:hidden;
+    background: var(--surface);
+  }
+  .seg button{
+    border:0; background:transparent; color: var(--ink-soft); font: inherit; font-size:.82rem; font-weight:600;
+    padding: 7px 14px; cursor:pointer;
+  }
+  .seg button[aria-pressed="true"]{ background: var(--green); color: var(--green-ink); }
+  .btn-ghost{
+    border:1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
+    font: inherit; font-size:.82rem; font-weight:600; padding:7px 14px; border-radius:999px; cursor:pointer;
+  }
+  .btn-ghost:hover{ color: var(--flag); border-color: var(--flag); }
+  .btn-ghost[aria-pressed="true"]{ background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
+  .course-select{
+    border:1px solid var(--line-strong); background: var(--surface); color: var(--ink-soft);
+    font: inherit; font-size:.82rem; font-weight:600; padding:7px 10px; border-radius:999px; cursor:pointer;
+    max-width: 100%;
+  }
+  .seg button:focus-visible, .btn-ghost:focus-visible, .course-select:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+    outline: 2px solid var(--green); outline-offset: 2px;
+  }
+  .preset-note{
+    font-size: .72rem; color: var(--ink-faint); margin: 8px 4px 0; max-width: 54ch;
+  }
+  .preset-note.course-note{ color: var(--brass); }
+  .preset-note[hidden]{ display: none; }
+
+  .leaderboard{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;
+    margin: 18px 0;
+  }
+  .player-card{
+    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 12px 10px; border-left: 3px solid var(--pc); position: relative;
+  }
+  .player-card .name-row{ display:flex; align-items:center; gap:6px; }
+  .player-name{
+    border:0; background:transparent; font: inherit; font-weight:700; font-size:.82rem; color: var(--ink);
+    width: 100%; padding: 0; font-family: inherit;
+  }
+  .player-name:focus{ outline: none; border-bottom: 1px solid var(--pc); }
+  .hcp-row{ display:flex; align-items:center; gap:5px; margin-top:7px; }
+  .hcp-row label{
+    font-size:.62rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color: var(--ink-faint);
+  }
+  .hcp-input{
+    width: 40px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; font-size: .8rem; text-align:center;
+    border:1px solid var(--line-strong); border-radius:6px; background: var(--surface-sunk); color: var(--ink);
+    padding: 3px 0;
+  }
+  .leader-tag{
+    font-size:.62rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color: var(--brass-ink); background: var(--brass); border-radius:4px; padding: 1px 5px;
+    display:inline-block; margin-top:6px;
+  }
+  .player-total{
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 1.7rem; font-weight: 600; line-height:1.15; margin-top: 6px; color: var(--pc);
+  }
+  .player-strokes{ font-size:.72rem; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+
+  .ledger{
+    background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .ledger-head{
+    display:grid; grid-template-columns: 46px repeat(3, 1fr) 64px;
+    gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line);
+    font-size:.66rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color: var(--ink-faint);
+  }
+  .ledger-head span:not(:first-child):not(:last-child){ text-align:center; }
+  .ledger-head span:last-child{ text-align:right; }
+
+  .hole-row{
+    display:grid; grid-template-columns: 46px repeat(3, 1fr) 64px;
+    gap: 4px; align-items:center; padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hole-row:last-child{ border-bottom: 0; }
+  .hole-cell{ display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+  .hole-num{
+    font-family: ui-serif, Georgia, serif; font-size: 1rem; font-weight:600; color: var(--ink-soft);
+  }
+  .si-input{
+    width: 32px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; font-size: .6rem; text-align:center;
+    border:1px solid var(--line-strong); border-radius:5px; background: var(--surface-sunk); color: var(--ink-soft);
+    padding: 1px 0;
+  }
+  .si-input.si-dim{ opacity: .45; }
+  .si-input::placeholder{ color: var(--ink-faint); }
+
+  .stepper{
+    display:flex; align-items:center; justify-content:center; gap:2px;
+    border-left: 2px solid var(--pc);
+    background: var(--surface-sunk); border-radius: 8px; padding: 2px;
+  }
+  .stepper button{
+    width: 26px; height: 26px; border-radius: 6px; border: 0; background: transparent;
+    color: var(--ink-soft); font-size: 1rem; font-weight: 700; cursor:pointer; line-height:1;
+  }
+  .stepper button:hover{ background: var(--line); color: var(--ink); }
+  .valWrap{ display:flex; flex-direction:column; align-items:center; }
+  .strokes-dots{ height: 5px; display:flex; gap:2px; justify-content:center; margin-bottom:1px; }
+  .sdot{ width:4px; height:4px; border-radius:50%; background: var(--brass); }
+  .stepper .val{
+    min-width: 22px; text-align:center; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-variant-numeric: tabular-nums; font-size: .95rem; font-weight:600; color: var(--ink);
+  }
+  .stepper .val.empty{ color: var(--ink-faint); }
+
+  .pips{ display:flex; gap:3px; justify-content:flex-end; flex-wrap:wrap; width: 64px; }
+  .pip{ width:8px; height:8px; border-radius:50%; background: var(--line-strong); }
+  .pip.filled{ background: var(--pip-color, var(--ink-faint)); }
+
+  .subtotal-row{
+    display:grid; grid-template-columns: 46px repeat(3, 1fr) 64px; gap:4px; align-items:center;
+    padding: 7px 12px; background: var(--surface-sunk); border-bottom: 1px solid var(--line);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums;
+  }
+  .subtotal-row .label{
+    grid-column: 1;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color: var(--ink-faint);
+  }
+  .subtotal-row .cell{ text-align:center; font-size:.85rem; font-weight:600; color: var(--ink-soft); }
+  .subtotal-row.total .cell{ color: var(--ink); font-weight:700; }
+
+  .ledger-footer{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    padding: 10px 14px; font-size:.72rem; color: var(--ink-faint); flex-wrap:wrap;
+  }
+  .ledger-footer .check{ font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+  .ledger-footer .check.ok{ color: var(--green); }
+
+  footer.note{
+    text-align:center; font-size:.72rem; color: var(--ink-faint); margin-top: 16px; padding: 0 20px;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .player-total, .pip, .stepper .val{ transition: color .15s ease, background-color .15s ease; }
+  }
+
+  @media (max-width: 380px){
+    .ledger-head, .hole-row, .subtotal-row{ grid-template-columns: 36px repeat(3, 1fr) 52px; }
+    .pips{ width:52px; }
+    .si-input{ width:28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">Three players &middot; six points a hole</p>
+    <h1>Fairway Ledger</h1>
+    <p class="sub">Lowest score on a hole takes the most points. Ties split it evenly. Every hole always hands out exactly six.</p>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="Holes">
+        <button type="button" data-holes="9" aria-pressed="false">9 holes</button>
+        <button type="button" data-holes="18" aria-pressed="true">18 holes</button>
+      </div>
+      <button type="button" class="btn-ghost" id="newRoundBtn">New round</button>
+    </div>
+    <div class="controls controls-2">
+      <button type="button" class="btn-ghost" id="hcpToggleBtn" aria-pressed="false">Handicaps: Off</button>
+      <select id="courseSelect" class="course-select" aria-label="Load a course's stroke index">
+        <option value="manual">Manual stroke index</option>
+      </select>
+    </div>
+    <p class="preset-note">Set each player's handicap below and tap a hole's <strong>SI</strong> box to enter its stroke index (1 = hardest, 18 = easiest) &mdash; harder holes then hand out extra strokes automatically. Or pick a course above to fill in all 18 boxes from its public scorecard (Taranaki, North Island, only for now) &mdash; then correct any hole by hand if your printed card differs.</p>
+    <p class="preset-note course-note" id="courseNote" hidden></p>
+    </header>
+
+  <section class="leaderboard" id="leaderboard"></section>
+
+  <section class="ledger">
+    <div class="ledger-head" id="ledgerHead">
+      <span>Hole</span><span>&nbsp;</span><span>&nbsp;</span><span>&nbsp;</span><span>Points</span>
+    </div>
+    <div id="holesList"></div>
+  </section>
+
+  <div class="ledger-footer">
+    <span>Tap +/- to enter strokes for each hole.</span>
+    <span class="check" id="pointsCheck"></span>
+  </div>
+
+  <footer class="note">Saved on this device only &mdash; nothing leaves your phone.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var STORAGE_KEY = "sixPointGolf.v1";
+  var POINTS = [4, 2, 0];
+  var COLORS = ["green", "brass", "flag"];
+  var MAX_HOLES = 18;
+  var MAX_HCP = 54;
+
+  // Taranaki, North Island, NZ — stroke index per hole (1 = hardest, 18 = easiest),
+  // taken from each club's public scorecard (18birdies.com / hole19golf.com / golfpass.com).
+  // Nine-hole clubs replayed twice are noted with how the back nine was derived.
+  // Verify against the printed card at the club before relying on it for a real competition.
+  var COURSES = {
+    eltham: {
+      label: "Eltham Golf Club",
+      si: [4, 2, 10, 14, 16, 6, 18, 12, 8, 5, 1, 17, null, null, null, null, null, null],
+      note: "Eltham: only the front 12 holes have a published stroke index (holes 13–18 replay 1–6 from different tees) — left blank, fill in from the card at the club."
+    },
+    fitzroy: {
+      label: "Fitzroy Golf Club",
+      si: [13, 7, 3, 17, 1, 11, 9, 5, 15, 18, 12, 6, 16, 2, 10, 4, 8, 14]
+    },
+    hawera: {
+      label: "Hawera Golf Club",
+      si: [6, 10, 18, 8, 14, 16, 2, 12, 4, 15, 3, 13, 1, 7, 5, 17, 11, 9]
+    },
+    inglewood: {
+      label: "Inglewood Golf Club",
+      si: [6, 10, 16, 2, 18, 4, 12, 14, 8, 15, 1, 5, 11, 3, 7, 13, 17, 9]
+    },
+    kaitake: {
+      label: "Kaitake Golf Club",
+      si: [5, 13, 3, 17, 15, 9, 7, 1, 11, 8, 6, 2, 10, 12, 18, 16, 14, 4]
+    },
+    manaia: {
+      label: "Manaia Golf Club",
+      si: [9, 17, 11, 5, 3, 1, 13, 7, 15, 12, 2, 8, 16, 14, 18, 4, 10, 6]
+    },
+    manukorihi: {
+      label: "Manukorihi Golf Club",
+      si: [2, 6, 18, 16, 8, 10, 14, 12, 4, 7, 15, 13, 1, 5, 17, 9, 3, 11]
+    },
+    newplymouth: {
+      label: "New Plymouth Golf Club",
+      si: [17, 1, 9, 3, 5, 15, 11, 7, 13, 8, 4, 14, 6, 18, 16, 10, 2, 12],
+      note: "New Plymouth: sources disagree on par for holes 4–5 — stroke index itself is from one clean source, but double-check against the club's printed card."
+    },
+    opunake: {
+      label: "Opunake Golf Club",
+      si: [9, 3, 13, 1, 15, 17, 5, 11, 7, 6, 10, 2, 18, 4, 14, 12, 8, 16]
+    },
+    patea: {
+      label: "Patea Golf Club",
+      si: [15, 7, 9, 11, 3, 5, 13, 1, 17, 18, 4, 10, 12, 2, 14, 8, 16, 6]
+    },
+    pungarehu: {
+      label: "Pungarehu Golf Club",
+      si: [15, 3, 17, 1, 5, 13, 11, 7, 9, 4, 12, 6, 18, 10, 16, 2, 8, 14]
+    },
+    stratford: {
+      label: "Stratford Golf Club",
+      si: [9, 3, 7, 15, 13, 11, 5, 17, 1, 4, 16, 12, 2, 10, 18, 8, 14, 6],
+      note: "Stratford: total par differs slightly between sources (71 vs 72) — worth a sanity check against the club's own card."
+    },
+    strathmore: {
+      label: "Strathmore Golf Club",
+      si: [7, 3, 5, 17, 1, 11, 9, 15, 13, 8, 4, 6, 18, 2, 12, 10, 16, 14],
+      note: "Strathmore: a 9-hole course played twice. Holes 10–18 repeat 1–9, so their index is inferred from the front-nine card using the standard doubling rule — check it against the card at the club."
+    },
+    tengutu: {
+      label: "Te Ngutu Golf Club",
+      si: [13, 17, 1, 15, 5, 9, 7, 11, 3, 12, 18, 10, 6, 4, 14, 16, 2, 8]
+    },
+    urenui: {
+      label: "Urenui Golf Club",
+      si: [9, 15, 17, 11, 1, 13, 5, 7, 3, 8, 16, 10, 18, 2, 14, 6, 12, 4]
+    },
+    waitara: {
+      label: "Waitara Golf Club",
+      si: [9, 11, 1, 13, 7, 15, 5, 17, 3, 14, 10, 12, 4, 16, 2, 6, 18, 8]
+    },
+    waverley: {
+      label: "Waverley Golf Club",
+      si: [8, 14, 6, 2, 16, 10, 4, 18, 12, 13, 3, 11, 17, 1, 7, 15, 5, 9]
+    },
+    westown: {
+      label: "Westown Golf Club",
+      si: [7, 13, 3, 1, 11, 5, 17, 15, 9, 4, 10, 2, 18, 14, 6, 16, 12, 8]
+    }
+  };
+
+  function defaultState(){
+    return {
+      holesCount: 18,
+      players: [
+        { name: "Player 1", hcp: 0 },
+        { name: "Player 2", hcp: 0 },
+        { name: "Player 3", hcp: 0 }
+      ],
+      strokes: Array.from({length: MAX_HOLES}, function(){ return [null, null, null]; }),
+      strokeIndex: Array(MAX_HOLES).fill(null),
+      useHandicaps: false,
+      selectedCourse: "manual"
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      var parsed = JSON.parse(raw);
+      if(!parsed || !Array.isArray(parsed.strokes) || parsed.strokes.length !== MAX_HOLES) return defaultState();
+      if(!Array.isArray(parsed.players) || parsed.players.length !== 3) return defaultState();
+      parsed.players.forEach(function(p){
+        if(typeof p.hcp !== "number" || isNaN(p.hcp)) p.hcp = 0;
+      });
+      if(!Array.isArray(parsed.strokeIndex) || parsed.strokeIndex.length !== MAX_HOLES){
+        parsed.strokeIndex = Array(MAX_HOLES).fill(null);
+      }
+      if(typeof parsed.useHandicaps !== "boolean") parsed.useHandicaps = false;
+      if(typeof parsed.selectedCourse !== "string") parsed.selectedCourse = "manual";
+      return parsed;
+    }catch(e){
+      return defaultState();
+    }
+  }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  var state = loadState();
+
+  function strokesReceived(hcp, si){
+    if(si === null || si === undefined) return 0;
+    var h = Math.max(0, Math.min(MAX_HCP, Math.round(Number(hcp) || 0)));
+    var extra = Math.floor(h / 18);
+    var rem = h % 18;
+    return extra + (si <= rem ? 1 : 0);
+  }
+
+  function getCompareRow(h){
+    var gross = state.strokes[h];
+    if(!state.useHandicaps) return gross;
+    var si = state.strokeIndex[h];
+    if(si === null || si === undefined) return gross;
+    return gross.map(function(v, p){
+      if(v === null) return null;
+      return v - strokesReceived(state.players[p].hcp, si);
+    });
+  }
+
+  function computeHolePoints(row){
+    if(row.some(function(v){ return v === null || v === undefined; })){
+      return [null, null, null];
+    }
+    var idx = [0, 1, 2].slice().sort(function(a, b){ return row[a] - row[b]; });
+    var pts = [0, 0, 0];
+    var i = 0;
+    while(i < 3){
+      var j = i;
+      while(j + 1 < 3 && row[idx[j + 1]] === row[idx[i]]) j++;
+      var slice = POINTS.slice(i, j + 1);
+      var avg = slice.reduce(function(a, b){ return a + b; }, 0) / slice.length;
+      for(var k = i; k <= j; k++) pts[idx[k]] = avg;
+      i = j + 1;
+    }
+    return pts;
+  }
+
+  function totals(uptoIndex){
+    var t = [0, 0, 0];
+    var s = [0, 0, 0];
+    var holesPlayed = 0;
+    for(var h = 0; h < uptoIndex; h++){
+      var gross = state.strokes[h];
+      var pts = computeHolePoints(getCompareRow(h));
+      var complete = gross.every(function(v){ return v !== null; });
+      if(complete) holesPlayed++;
+      for(var p = 0; p < 3; p++){
+        if(pts[p] !== null) t[p] += pts[p];
+        if(gross[p] !== null) s[p] += gross[p];
+      }
+    }
+    return { points: t, strokes: s, holesPlayed: holesPlayed };
+  }
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function renderLeaderboard(){
+    var board = document.getElementById("leaderboard");
+    board.innerHTML = "";
+    var tot = totals(state.holesCount);
+    var maxPts = Math.max.apply(null, tot.points);
+    var anyPlayed = tot.holesPlayed > 0;
+
+    state.players.forEach(function(player, i){
+      var card = el("div", "player-card");
+      card.style.setProperty("--pc", "var(--" + COLORS[i] + ")");
+
+      var nameRow = el("div", "name-row");
+      var input = document.createElement("input");
+      input.className = "player-name";
+      input.value = player.name;
+      input.setAttribute("aria-label", "Player " + (i + 1) + " name");
+      input.maxLength = 18;
+      input.addEventListener("input", function(){
+        state.players[i].name = input.value;
+        saveState();
+      });
+      nameRow.appendChild(input);
+      card.appendChild(nameRow);
+
+      var hcpRow = el("div", "hcp-row");
+      var hcpId = "hcp-input-" + i;
+      var hcpLabel = document.createElement("label");
+      hcpLabel.setAttribute("for", hcpId);
+      hcpLabel.textContent = "Hcp";
+      var hcpInput = document.createElement("input");
+      hcpInput.type = "number";
+      hcpInput.id = hcpId;
+      hcpInput.className = "hcp-input";
+      hcpInput.min = 0;
+      hcpInput.max = MAX_HCP;
+      hcpInput.value = player.hcp;
+      hcpInput.addEventListener("change", function(){
+        var v = parseInt(hcpInput.value, 10);
+        state.players[i].hcp = isNaN(v) ? 0 : Math.max(0, Math.min(MAX_HCP, v));
+        saveState();
+        render();
+      });
+      hcpRow.appendChild(hcpLabel);
+      hcpRow.appendChild(hcpInput);
+      card.appendChild(hcpRow);
+
+      var totalEl = el("div", "player-total", String(tot.points[i]));
+      card.appendChild(totalEl);
+
+      var strokesEl = el("div", "player-strokes", tot.holesPlayed ? (tot.strokes[i] + " strokes") : "no strokes yet");
+      card.appendChild(strokesEl);
+
+      if(anyPlayed && tot.points[i] === maxPts && maxPts > 0){
+        var tag = el("span", "leader-tag", tiedLeaders(tot.points) > 1 ? "Tied lead" : "Leading");
+        card.appendChild(tag);
+      }
+
+      board.appendChild(card);
+    });
+  }
+
+  function tiedLeaders(points){
+    var max = Math.max.apply(null, points);
+    return points.filter(function(p){ return p === max; }).length;
+  }
+
+  function renderHoles(){
+    var list = document.getElementById("holesList");
+    list.innerHTML = "";
+
+    for(var h = 0; h < state.holesCount; h++){
+      list.appendChild(buildHoleRow(h));
+
+      if(state.holesCount === 18 && h === 8){
+        list.appendChild(buildSubtotalRow("Out", 0, 9));
+      }
+    }
+    if(state.holesCount === 18){
+      list.appendChild(buildSubtotalRow("In", 9, 18));
+    }
+    list.appendChild(buildSubtotalRow("Total", 0, state.holesCount, true));
+
+    var tot = totals(state.holesCount);
+    var expected = tot.holesPlayed * 6;
+    var got = tot.points[0] + tot.points[1] + tot.points[2];
+    var checkEl = document.getElementById("pointsCheck");
+    checkEl.textContent = "Points allocated: " + got + " / " + expected;
+    checkEl.className = "check" + (got === expected ? " ok" : "");
+  }
+
+  function buildHoleRow(h){
+    var row = el("div", "hole-row");
+
+    var holeCell = el("div", "hole-cell");
+    holeCell.appendChild(el("div", "hole-num", String(h + 1)));
+    var siInput = document.createElement("input");
+    siInput.type = "number";
+    siInput.className = "si-input" + (state.useHandicaps ? "" : " si-dim");
+    siInput.min = 1;
+    siInput.max = 18;
+    siInput.placeholder = "SI";
+    siInput.value = state.strokeIndex[h] === null ? "" : state.strokeIndex[h];
+    siInput.setAttribute("aria-label", "Stroke index for hole " + (h + 1));
+    siInput.addEventListener("change", function(hh){
+      return function(){
+        var v = parseInt(siInput.value, 10);
+        state.strokeIndex[hh] = (isNaN(v) || v < 1) ? null : Math.min(18, v);
+        saveState();
+        render();
+      };
+    }(h));
+    holeCell.appendChild(siInput);
+    row.appendChild(holeCell);
+
+    var pts = computeHolePoints(getCompareRow(h));
+    var si = state.strokeIndex[h];
+
+    for(var p = 0; p < 3; p++){
+      var stepper = el("div", "stepper");
+      stepper.style.setProperty("--pc", "var(--" + COLORS[p] + ")");
+
+      var minus = el("button", null, "&minus;");
+      minus.type = "button";
+      minus.setAttribute("aria-label", "Decrease " + state.players[p].name + " strokes, hole " + (h + 1));
+      minus.addEventListener("click", function(hh, pp){
+        return function(){
+          var cur = state.strokes[hh][pp];
+          state.strokes[hh][pp] = cur === null ? 6 : Math.max(1, cur - 1);
+          saveState(); render();
+        };
+      }(h, p));
+
+      var valWrap = el("div", "valWrap");
+      var dotsRow = el("div", "strokes-dots");
+      if(state.useHandicaps && si !== null){
+        var sr = strokesReceived(state.players[p].hcp, si);
+        for(var sd = 0; sd < sr; sd++) dotsRow.appendChild(el("span", "sdot"));
+      }
+      valWrap.appendChild(dotsRow);
+      var val = el("span", "val" + (state.strokes[h][p] === null ? " empty" : ""), state.strokes[h][p] === null ? "–" : String(state.strokes[h][p]));
+      valWrap.appendChild(val);
+
+      var plus = el("button", null, "&plus;");
+      plus.type = "button";
+      plus.setAttribute("aria-label", "Increase " + state.players[p].name + " strokes, hole " + (h + 1));
+      plus.addEventListener("click", function(hh, pp){
+        return function(){
+          var cur = state.strokes[hh][pp];
+          state.strokes[hh][pp] = cur === null ? 4 : Math.min(15, cur + 1);
+          saveState(); render();
+        };
+      }(h, p));
+
+      stepper.appendChild(minus);
+      stepper.appendChild(valWrap);
+      stepper.appendChild(plus);
+      row.appendChild(stepper);
+    }
+
+    var pipsWrap = el("div", "pips");
+    var dotColors = [];
+    for(var pi = 0; pi < 3; pi++){
+      var count = pts[pi] === null ? 0 : pts[pi];
+      for(var c = 0; c < count; c++) dotColors.push(COLORS[pi]);
+    }
+    for(var d = 0; d < 6; d++){
+      var dot = el("span", "pip" + (dotColors[d] ? " filled" : ""));
+      if(dotColors[d]) dot.style.setProperty("--pip-color", "var(--" + dotColors[d] + ")");
+      pipsWrap.appendChild(dot);
+    }
+    row.appendChild(pipsWrap);
+
+    return row;
+  }
+
+  function buildSubtotalRow(label, fromIdx, toIdx, isTotal){
+    var t = [0, 0, 0];
+    for(var h = fromIdx; h < toIdx; h++){
+      var pts = computeHolePoints(getCompareRow(h));
+      for(var p = 0; p < 3; p++) if(pts[p] !== null) t[p] += pts[p];
+    }
+    var row = el("div", "subtotal-row" + (isTotal ? " total" : ""));
+    row.appendChild(el("div", "label", label));
+    for(var p2 = 0; p2 < 3; p2++) row.appendChild(el("div", "cell", String(t[p2])));
+    row.appendChild(el("div", "cell"));
+    return row;
+  }
+
+  function render(){
+    renderLeaderboard();
+    renderHoles();
+  }
+
+  function populateCourseSelect(){
+    var select = document.getElementById("courseSelect");
+    var keys = Object.keys(COURSES).sort(function(a, b){
+      return COURSES[a].label.localeCompare(COURSES[b].label);
+    });
+    var optgroup = document.createElement("optgroup");
+    optgroup.label = "Taranaki, North Island";
+    keys.forEach(function(key){
+      var opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = COURSES[key].label;
+      optgroup.appendChild(opt);
+    });
+    select.appendChild(optgroup);
+  }
+
+  function renderControlsState(){
+    var btn = document.getElementById("hcpToggleBtn");
+    btn.setAttribute("aria-pressed", state.useHandicaps ? "true" : "false");
+    btn.textContent = "Handicaps: " + (state.useHandicaps ? "On" : "Off");
+
+    var select = document.getElementById("courseSelect");
+    select.value = state.selectedCourse;
+
+    var noteEl = document.getElementById("courseNote");
+    var course = COURSES[state.selectedCourse];
+    if(course && course.note){
+      noteEl.textContent = course.note;
+      noteEl.hidden = false;
+    }else{
+      noteEl.hidden = true;
+    }
+  }
+
+  document.querySelectorAll(".seg button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      var holes = parseInt(btn.getAttribute("data-holes"), 10);
+      state.holesCount = holes;
+      document.querySelectorAll(".seg button").forEach(function(b){
+        b.setAttribute("aria-pressed", b === btn ? "true" : "false");
+      });
+      saveState();
+      render();
+    });
+  });
+
+  document.getElementById("hcpToggleBtn").addEventListener("click", function(){
+    state.useHandicaps = !state.useHandicaps;
+    saveState();
+    renderControlsState();
+    render();
+  });
+
+  populateCourseSelect();
+
+  document.getElementById("courseSelect").addEventListener("change", function(){
+    var val = this.value;
+    state.selectedCourse = val;
+    if(val !== "manual" && COURSES[val]){
+      state.strokeIndex = COURSES[val].si.slice();
+      state.useHandicaps = true;
+    }
+    saveState();
+    renderControlsState();
+    render();
+  });
+
+  document.getElementById("newRoundBtn").addEventListener("click", function(){
+    if(confirm("Clear all scores for a new round? Names, handicaps, and stroke index stay the same.")){
+      var names = state.players.map(function(p){ return p.name; });
+      var hcps = state.players.map(function(p){ return p.hcp; });
+      var si = state.strokeIndex.slice();
+      var useH = state.useHandicaps;
+      var holesCount = state.holesCount;
+      var selectedCourse = state.selectedCourse;
+      state = defaultState();
+      state.players.forEach(function(p, i){ p.name = names[i]; p.hcp = hcps[i]; });
+      state.strokeIndex = si;
+      state.useHandicaps = useH;
+      state.holesCount = holesCount;
+      state.selectedCourse = selectedCourse;
+      saveState();
+      document.querySelectorAll(".seg button").forEach(function(b){
+        b.setAttribute("aria-pressed", b.getAttribute("data-holes") === String(state.holesCount) ? "true" : "false");
+      });
+      renderControlsState();
+      render();
+    }
+  });
+
+  document.querySelectorAll(".seg button").forEach(function(b){
+    b.setAttribute("aria-pressed", b.getAttribute("data-holes") === String(state.holesCount) ? "true" : "false");
+  });
+
+  renderControlsState();
+  render();
+
+  // Offline install: caches the whole app on first load, so it keeps
+  // working with no signal after that (Add to Home Screen on iOS to
+  // launch it like a real app, no browser bar).
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("sw.js").catch(function(){ /* ignore */ });
+    });
+  }
+})();
+</script>
+</body>
+</html>
