@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#2F6844">
 <link rel="icon" href="icons/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script async src="https://js.stripe.com/v3/buy-button.js"></script>
 <style>
   :root{
     --bg:#F5F1E6; --surface:#FFFFFF; --ink:#1C2B22; --ink-soft:#5B6A58; --ink-faint:#8B9587;
@@ -66,11 +67,6 @@
     font-size: 2.6rem; font-weight:700; color:var(--green); margin: 0 0 4px;
   }
   .price-note{ font-size:.72rem; color:var(--ink-faint); margin: 0 0 24px; }
-  .pay-btn{
-    display:block; width:100%; text-decoration:none; background:var(--green); color:var(--green-ink);
-    font-weight:700; font-size:1rem; padding: 14px 18px; border-radius:999px; box-shadow:var(--shadow);
-  }
-  .pay-btn:active{ transform: translateY(1px); }
   .fine{ margin: 16px 0 0; font-size:.7rem; color:var(--ink-faint); line-height:1.5; }
 </style>
 </head>
@@ -82,7 +78,10 @@
     <p class="sub">Score six-point golf for you and two mates, with real stroke-index presets for every Taranaki club. Pay once, keep it on your phone forever.</p>
     <p class="price">$1<span style="font-size:1rem;font-weight:600;color:var(--ink-faint);">.00</span></p>
     <p class="price-note">One-time payment &middot; no subscription</p>
-    <a class="pay-btn" href="https://buy.stripe.com/4gM6oG0vKckD5uc9Qw5gc01">Unlock Fairway Ledger</a>
+    <stripe-buy-button
+      buy-button-id="buy_btn_1TxByeAn3nFavo4Ln0jnZW9A"
+      publishable-key="pk_live_51Tx1q8An3nFavo4LJli8NzGOMAtm33b1OmLyyQ1IUEPWu0gRqp4qJiggbvDNrswoRDwDcGYNjk7i3UuncGfhuppu00XhFHDtZI"
+    ></stripe-buy-button>
     <p class="fine">Handled securely by Stripe. After payment you're dropped straight into the app — add it to your home screen and it works with no signal from then on.</p>
   </div>
 </body>
