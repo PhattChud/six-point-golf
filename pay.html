@@ -72,10 +72,6 @@
   }
   .pay-btn:active{ transform: translateY(1px); }
   .fine{ margin: 16px 0 0; font-size:.7rem; color:var(--ink-faint); line-height:1.5; }
-  .test-flag{
-    margin: 18px 0 0; font-size:.68rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--brass-ink); background:var(--brass); border-radius:6px; padding:4px 8px; display:inline-block;
-  }
 </style>
 </head>
 <body>
@@ -88,14 +84,6 @@
     <p class="price-note">One-time payment &middot; no subscription</p>
     <a class="pay-btn" href="https://buy.stripe.com/4gM6oG0vKckD5uc9Qw5gc01">Unlock Fairway Ledger</a>
     <p class="fine">Handled securely by Stripe. After payment you're dropped straight into the app — add it to your home screen and it works with no signal from then on.</p>
-    <span class="test-flag" id="testFlag" hidden>Stripe test mode — no real charge</span>
   </div>
-  <script>
-    // Shows the test-mode notice only when the payment link itself is a Stripe test link,
-    // so nobody sees it once this is swapped to a live link.
-    if(document.querySelector(".pay-btn").href.indexOf("/test_") !== -1){
-      document.getElementById("testFlag").hidden = false;
-    }
-  </script>
 </body>
 </html>
